@@ -1,0 +1,42 @@
+name: Run Preprocessing and Commit Output
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  preprocess-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run preprocessing script
+      run: python preprocessing/automate_Erika.py
+
+    - name: Commit and push cleaned data
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+      run: |
+        git config user.name "${{ secrets.username }}"
+        git config user.email "${{ secrets.email }}"
+        git add preprocessing/cleaned_data/resume_data_cleaned-labeled.csv
+
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update cleaned data from CI/CD run"
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git HEAD:main
+        fi
