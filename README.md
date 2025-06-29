@@ -18,9 +18,9 @@ The dataset used in this project is sourced from [Kaggle: Resume Dataset](https:
 
 Manual resume screening is often:
 
-* 🕒 **Time-consuming**, especially with large applicant pools
-* ❌ **Inconsistent**, due to subjective human evaluation
-* ⚖️ **Prone to bias**, whether conscious or unconscious
+* **Time-consuming**, especially with large applicant pools
+* **Inconsistent**, due to subjective human evaluation
+* **Prone to bias**, whether conscious or unconscious
 
 To address these challenges, the goal of this module is to:
 
@@ -31,6 +31,24 @@ To address these challenges, the goal of this module is to:
   * ✅ Relevant to be a Data Scientist
   * ❌ Not Relevant to be a Data Scientist
 * Generate structured and semantically rich data to support **machine learning-based resume classification**
+
+## 📁 Project Structure
+
+```bash
+.
+├── .github/
+│   └── workflows/
+│       └── main.yaml                        # CI pipeline definition
+├── raw_data/
+│   └── resume_data.csv                      # Original raw dataset
+├── preprocessing/
+│   ├── cleaned_data/
+│   │   └── resume_data_cleaned-labeled.csv  # Output: cleaned & labeled dataset
+│   ├── utils/
+│   │   └── ds_keywords.py                   # List of data science keywords for labeling
+│   ├── automate_preprocessing.py            # Main script for preprocessing
+│   └── Eksperimen_Erika.ipynb               # Notebook for exploration & testing
+```
 
 ## Preprocessing Pipeline
 
@@ -140,24 +158,6 @@ The module is integrated with **GitHub Actions** to automate data processing:
   * Trigger the preprocessing pipeline
   * Update the cleaned and labeled dataset automatically
 * This ensures always up-to-date training data is available for downstream model development
-
-## 📁 File Structure
-
-```bash
-.
-├── .github/
-│   └── workflows/
-│       └── main.yaml                      # CI pipeline definition
-├── raw_data/
-│   └── resume_data.csv                    # Original raw dataset
-├── preprocessing/
-│   ├── cleaned_data/
-│   │   └── resume_data_cleaned-labeled.csv  # Output: cleaned & labeled dataset
-│   ├── automate_preprocessing.py         # Main script for preprocessing
-│   └── Eksperimen_Erika.ipynb            # Notebook for exploration & testing
-├── utils/
-│   └── ds_keywords.py                    # List of data science keywords for labeling
-```
 
 ## Requirements
 
