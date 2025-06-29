@@ -1,6 +1,13 @@
+""" 
+This script automates the preprocessing of resume data for a Data Scientist role.
+It includes feature selection, handling missing values, parsing and cleaning text,
+renaming columns, creating new features, labeling, and saving the cleaned data.
+"""
+
+
 import pandas as pd
 import numpy as np
-import ast  # buat parsing array-string
+import ast  # parsing array-string
 import re
 from utils.ds_keywords import ds_keywords
 
@@ -12,7 +19,6 @@ def feature_selection(df):
     'positions',
     'responsibilities'
     ]
-
     return df[selected_fields].copy()
 
 def handling_missing_values(df):
@@ -54,12 +60,10 @@ def handling_missing_values(df):
         df_cleaned = df_cleaned.dropna(subset=['major_field_of_studies'])
         return df_cleaned
 
-    # Urutan cleaning
+    # cleaning order
     df = handling_nan_skills(df)
     df = handling_nan_positions(df)
     df = handling_nan_major_field_of_studies(df)
-
-    # Reset index agar rapi
     return df.reset_index(drop=True)
 
 def clean_text(text):
@@ -70,32 +74,32 @@ def clean_text(text):
     if pd.isna(text):
         return ""
     text = str(text).strip().lower()
-    # Hilangkan nilai tidak bermakna
+    # clean nan or empty values
     if text in ["n/a", "na", "none", "-", "null"]:
         return ""
     text = str(text).replace("\n", ", ").replace("\r", ", ").replace("\t", " ")
-    # Ganti tanda slash yang berada di antara kata dengan koma
+    # change slashes to commas
     text = re.sub(r'\s*/\s*', ', ', text)
-    # Hilangkan tanda baca dobel atau berulang (,, ;; .. -- ++)
-    text = re.sub(r'([,;:\.\-])\s*\1+', r'\1', text)  # ganti ,, ;; .. jadi satu
-    # Hapus kombinasi tidak lazim seperti ,., atau .,, jadi satu koma/titik saja
+    # delete double punctuation
+    text = re.sub(r'([,;:\.\-])\s*\1+', r'\1', text)  # change ,, ;; .. to be one
+    # delete unusual combinations like ,., or .,, to be one comma/period only
     text = re.sub(r'([,;:\.])[\s]*([,;:\.])+', r'\1', text)
-    # Hilangkan spasi berlebih
+    # delete excessive spaces
     text = re.sub(r'\s+', ' ', text)
-    # Hapus koma/titik di awal/akhir string
+    # delete commas/periods at the beginning/end of the string
     text = text.strip(" ,.;:-")
     return text.strip()
 
 def parse_list_column(col):
-    # Konversi string list seperti "['A', 'B']" jadi list python asli
+    # convert string list like "['A', 'B']" to actual python list
     def clean_list(x):
         try:
             if pd.isna(x) or x == "":
                 return ""
-            # Attempt to parse the string as a list
+            # attempt to parse the string as a list
             parsed = ast.literal_eval(x) if isinstance(x, str) else x
             if isinstance(parsed, list):
-                # Filter out None and empty strings before joining
+                # filter out None and empty strings before joining
                 return ", ".join([
                     str(item).strip()
                     for item in parsed
@@ -104,7 +108,7 @@ def parse_list_column(col):
             else:
                 return str(parsed).strip()
         except (ValueError, SyntaxError):
-            # If literal_eval fails, treat it as a single string and clean it
+            # if literal_eval fails, treat it as a single string and clean it
             return clean_text(x)
         except Exception:
             return ""
@@ -112,7 +116,6 @@ def parse_list_column(col):
     return col.apply(clean_list)
 
 def rename_column(df):
-    # rename
     df.rename(columns={"positions": "previous_positions"}, inplace=True)
     return df
 
@@ -128,7 +131,6 @@ def new_feature(df):
     )
     return df
 
-# Fungsi pelabelan (versi ketat)
 def label(text):
     if not isinstance(text, str) or not text.strip():
         return 'Not Relevant to be a Data Scientist'
@@ -143,6 +145,9 @@ def encode_label(df):
 def save_cleaned_data(df, file_path='preprocessing/cleaned_data/resume_data_cleaned-labeled.csv'):
     df[["resume_text", "label"]].to_csv(file_path, index=False)
     print(f"Cleaned data saved to {file_path}")
+
+
+
 
 
 if __name__ == '__main__':
